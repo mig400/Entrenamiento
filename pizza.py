@@ -23,53 +23,89 @@ Created on Fri Mar  6 18:22:14 2020
 # =============================================================================
 from random import randrange 
 
-# =============================================================================
-# funcion de coste , evalua lo optima que es la solucion
-# =============================================================================
-def cost_func (K,order,numslice):
-    cost = abs(numslice-sum(order))/K
-    return cost,K
-# =============================================================================
-# funcion que resuelve el problema
-# =============================================================================
+def iniciadora (numslice,numpizza,catlog):
+    solution = []
+    temp_solution = []
+    start = 0
+    resto = numslice
+    catlog.sort()
+    nosvamos = False
+    pizza (numslice , numpizza , catlog , start , resto , solution , temp_solution , nosvamos)
 
-def pizza (numslice,numpizza,catlog):
+# =============================================================================
+# funcion recursiva que resuelve el problema
+# =============================================================================
+def pizza (numslice , numpizza , catlog , start , resto , solution , temp_solution , nosvamos):
     
-    for i in range(0,numpizza):
+    
+    temp_solution=[] 
+    
+    for i in range (0, len(solution)) :   
+        temp_solution.append(solution[i])
+                    
         
-    # variables de salida
-        Kopt=0
-        order_opt = [0]*numpizza
-    #variables internas
-        K = 0
-        order = []
-        cost_vec = [0]*numpizza
-        K_vec = [0]*numpizza
-        winner = []
-        winner_index = []
-    # seleccion de las pizzas
-    
-    # llamada a la funcion de coste
-        cost_vec[i], K_vec[i] = cost_func (K,order,numslice)
-    # selección de la mejor solucion al problema
-    minval =  min(cost_vec)
-    for i in range(0,numpizza):
-        if  cost_vec[i] == minval:
-            winner.append(K_vec[i])
-            winner_index.append(i)
-    Kopt = K_vec[winner.index(max(winner))]
-    
-    return Kopt , order_opt  
+    resto = numslice - sum(solution)
     
     
-    
+    if resto in catlog[start : ] and resto >= 0:
+       
+        solution.append(resto)
+        K = len(solution)
+        slicesgot = sum (solution)
+        print( 'solution is = ',solution , ' number of pizzas is = ' , K , ' slices ordered are = ' , slicesgot )
+        nosvamos = True
+        return
+    else:
+        
+        if not resto < 0 :
+            solution.append(catlog[start])
+            start += 1
+            if not start == len (catlog) :
+                pizza (numslice , numpizza , catlog , start , resto , solution , temp_solution , nosvamos)
+            else:
+                
+                if  sum(temp_solution) >= sum (solution) :
+                    K = len(temp_solution)
+                    slicesgot = sum (temp_solution)
+                    for i in range (0, len(solution)) :   
+                        solution[i]= temp_solution[i]
+                    return 
+                else:
+                    return 
+            resto += catlog[start] + catlog[start-1]
+            start = start - 1
+            print(solution)
+            if not nosvamos == True :
+                solution.pop(start-1)
+                solution.pop(start-2)
+                pizza (numslice , numpizza , catlog , start , resto , solution , temp_solution , nosvamos)
+            else:
+                return
+        else:
+            
+            if  sum(temp_solution) >= sum(solution) :
+                K = len(temp_solution)
+                slicesgot = sum (temp_solution)
+                for i in range (0, len(solution)) :   
+                    solution[i]= temp_solution[i]
+                return 
+            else:
+                return 
+            resto += catlog[start] + catlog[start-1]
+            start = start - 1
+            print(solution)
+            solution.pop(start-1)
+            solution.pop(start-2)
+            pizza (numslice , numpizza , catlog , start , resto , solution , temp_solution , nosvamos)
+        return
+
 #fragmento no ejecutable del modulo , unicamente para pruebas , a modo de generador de 
 # problemas alaeatorios
 if __name__ == "__main__":
-    numslice = randrange(50)
-    numpizza = randrange(10,30)
+    numslice = randrange(15,50)
+    numpizza = randrange(5,15)
     catlog = [0]*numpizza
     for i in range(0,numpizza) :
         catlog[i]= randrange(1,15)
-    print(numslice,numpizza,catlog)    
-    pizza (numslice,numpizza,catlog)
+    print('initial data' , numslice,numpizza,catlog)    
+    iniciadora (numslice,numpizza,catlog)
